@@ -7,6 +7,7 @@ import base64
 import random
 import time
 import subprocess
+import multiprocessing
 from datetime import datetime
 import openpyxl
 import requests
@@ -36,7 +37,9 @@ COLUMN_MAP = {
 # Configuración de directorios
 DOWNLOAD_DIR = 'downloads'
 PROCESSED_DIR = 'processed'
-MAX_WORKERS = 12  # Número máximo de hilos para descargas paralelas
+# Calcular número máximo de hilos basado en CPUs disponibles
+MAX_WORKERS = min((multiprocessing.cpu_count() * 2) + 4, 32)
+logger.info(f"🖥️ Número de hilos configurados: {MAX_WORKERS}")
 
 def setup_folders():
     """Crea las carpetas necesarias para el procesamiento"""
