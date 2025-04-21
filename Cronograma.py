@@ -297,50 +297,232 @@ def generate_html_report(data, html_folder, cobertura):
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Informe de Hallazgos - {cobertura}</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
     <style>
-        body {{
-            font-family: 'Segoe UI', Arial, sans-serif;
-            line-height: 1.6;
-            color: #333;
+        :root {{
+            --color-background: #E0F0FF;
+            --color-title: #003B5C;
+            --color-subtitle: #0077B3;
+            --color-card: #A4C8E1;
+            --color-card-secondary: #dedede;
+            --color-button: #005A8D;
+            --shadow-sm: 0 2px 4px rgba(0,0,0,0.1);
+            --shadow-md: 0 4px 6px rgba(0,0,0,0.1);
+            --shadow-lg: 0 10px 15px rgba(0,0,0,0.1);
+            --border-radius: 8px;
+            --spacing-xs: 0.25rem;
+            --spacing-sm: 0.5rem;
+            --spacing-md: 0.75rem;
+            --spacing-lg: 2.5rem;
+            --spacing-xl: 1.5rem;
+        }}
+        
+        * {{
             margin: 0;
             padding: 0;
-            background-color: #f9f9f9;
+            box-sizing: border-box;
         }}
+        
+        body {{
+            font-family: 'Roboto', sans-serif;
+            line-height: 1.4;
+            color: var(--color-title);
+            background-color: var(--color-background);
+            padding: var(--spacing-sm);
+        }}
+        
         .report-container {{
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
-            padding: 20px;
             background: white;
-            box-shadow: 0 0 20px rgba(0,0,0,0.1);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
+            overflow: hidden;
         }}
+        
+        header {{
+            background: var(--color-title);
+            color: white;
+            padding: var(--spacing-md);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }}
+        
+        header::before {{
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, var(--color-title), var(--color-subtitle));
+            opacity: 0.9;
+            z-index: 0;
+        }}
+        
+        header h1 {{
+            font-size: 1.8rem;
+            margin-bottom: var(--spacing-xs);
+            position: relative;
+            z-index: 1;
+        }}
+        
+        header p {{
+            color: rgba(255, 255, 255, 0.9);
+            font-size: 0.9rem;
+            position: relative;
+            z-index: 1;
+        }}
+        
+        .report-section {{
+            padding: var(--spacing-md);
+            border-bottom: 1px solid rgba(0, 0, 0, 0.1);
+        }}
+        
+        .report-section:last-child {{
+            border-bottom: none;
+        }}
+        
+        .report-section h3 {{
+            color: var(--color-subtitle);
+            font-size: 1.2rem;
+            margin-bottom: var(--spacing-md);
+            padding-bottom: var(--spacing-xs);
+            border-bottom: 2px solid var(--color-subtitle);
+        }}
+        
+        .entry {{
+            background: var(--color-card-secondary);
+            border-radius: var(--border-radius);
+            margin-bottom: var(--spacing-xl);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            padding: var(--spacing-md);
+        }}
+        
+        .entry:last-child {{
+            margin-bottom: 0;
+        }}
+        
+        .entry-divider {{
+            height: 2px;
+            background: linear-gradient(to right, transparent, var(--color-subtitle), transparent);
+            margin: var(--spacing-lg) 0;
+            opacity: 0.5;
+        }}
+        
+        .data-flex {{
+            display: flex;
+            flex-wrap: wrap;
+            gap: var(--spacing-md);
+            margin-bottom: var(--spacing-md);
+        }}
+        
+        .data-item {{
+            flex: 1 1 300px;
+            min-width: 300px;
+            background: white;
+            padding: var(--spacing-sm);
+            border-radius: var(--border-radius);
+            transition: transform 0.2s ease;
+        }}
+        
+        .data-item:hover {{
+            transform: translateY(-2px);
+        }}
+        
+        .data-item-label {{
+            font-size: 0.75rem;
+            color: var(--color-subtitle);
+            margin-bottom: var(--spacing-xs);
+            font-weight: 500;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }}
+        
+        .data-item-value {{
+            font-size: 0.85rem;
+            color: var(--color-title);
+            word-break: break-word;
+        }}
+        
+        .data-item-full {{
+            flex: 1 1 100%;
+            background: linear-gradient(to right, white, var(--color-background));
+        }}
+        
         .image-gallery {{
             display: flex;
             flex-wrap: wrap;
-            gap: 15px;
-            margin-top: 20px;
+            gap: var(--spacing-md);
+            margin-top: var(--spacing-md);
+            padding: var(--spacing-sm);
         }}
+        
         .image-item {{
-            flex: 1 1 300px;
-            border: 1px solid #e0e0e0;
-            border-radius: 4px;
-            overflow: hidden;
+            flex: 1 1 250px;
+            min-width: 250px;
             background: white;
-            box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+            border-radius: var(--border-radius);
+            overflow: hidden;
+            box-shadow: var(--shadow-sm);
+            transition: transform 0.2s ease;
         }}
+        
+        .image-item:hover {{
+            transform: translateY(-3px);
+            box-shadow: var(--shadow-md);
+        }}
+        
         .image-container {{
             height: 200px;
             display: flex;
             align-items: center;
             justify-content: center;
-            background: #f5f5f5;
+            background: var(--color-background);
             cursor: pointer;
+            position: relative;
+            overflow: hidden;
         }}
+        
+        .image-container::after {{
+            content: '🔍';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 1.2rem;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+            background: rgba(0, 0, 0, 0.5);
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+        }}
+        
+        .image-container:hover::after {{
+            opacity: 1;
+        }}
+        
         .image-container img {{
             max-width: 100%;
             max-height: 100%;
             object-fit: contain;
         }}
-        /* Estilos del modal */
+        
+        .image-caption {{
+            padding: var(--spacing-sm);
+            background: white;
+            font-size: 0.8rem;
+            color: var(--color-subtitle);
+            text-align: center;
+        }}
+        
+        /* Modal styles */
         .modal {{
             display: none;
             position: fixed;
@@ -349,8 +531,10 @@ def generate_html_report(data, html_folder, cobertura):
             top: 0;
             width: 100%;
             height: 100%;
-            background: rgba(0,0,0,0.9);
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(5px);
         }}
+        
         .modal-content {{
             display: block;
             max-width: 90%;
@@ -359,23 +543,114 @@ def generate_html_report(data, html_folder, cobertura):
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
+            border-radius: var(--border-radius);
+            box-shadow: var(--shadow-lg);
         }}
+        
         .close {{
             position: absolute;
-            top: 15px;
-            right: 35px;
+            top: 20px;
+            right: 30px;
             color: white;
             font-size: 40px;
             font-weight: bold;
             cursor: pointer;
+            transition: color 0.3s ease;
+        }}
+        
+        .close:hover {{
+            color: var(--color-button);
+        }}
+        
+        /* Responsive Design */
+        @media (max-width: 1200px) {{
+            .data-item {{
+                flex: 1 1 250px;
+                min-width: 250px;
+            }}
+        }}
+        
+        @media (max-width: 992px) {{
+            .data-item {{
+                flex: 1 1 200px;
+                min-width: 200px;
+            }}
+            
+            .image-item {{
+                flex: 1 1 200px;
+                min-width: 200px;
+            }}
+            
+            .image-container {{
+                height: 180px;
+            }}
+        }}
+        
+        @media (max-width: 768px) {{
+            body {{
+                padding: var(--spacing-xs);
+            }}
+            
+            .report-container {{
+                border-radius: 0;
+            }}
+            
+            header h1 {{
+                font-size: 1.5rem;
+            }}
+            
+            .report-section h3 {{
+                font-size: 1.1rem;
+            }}
+            
+            .entry {{
+                margin-bottom: var(--spacing-lg);
+                padding: var(--spacing-sm);
+            }}
+            
+            .data-item,
+            .image-item {{
+                flex: 1 1 30%;
+                min-width: 48%;
+            }}
+            
+            .image-container {{
+                height: 150px;
+            }}
+        }}
+        
+        @media (max-width: 480px) {{
+            header h1 {{
+                font-size: 1.3rem;
+            }}
+            
+            header p {{
+                font-size: 0.8rem;
+            }}
+            
+            .report-section h3 {{
+                font-size: 1rem;
+            }}
+            
+            .data-item-label {{
+                font-size: 0.7rem;
+            }}
+            
+            .data-item-value {{
+                font-size: 0.8rem;
+            }}
+            
+            .image-container {{
+                height: 200px;
+            }}
         }}
     </style>
 </head>
 <body>
     <div class="report-container">
         <header>
-            <h1>Informe de Hallazgos - {cobertura}</h1>
-            <p>Generado el {datetime.now().strftime('%d/%m/%Y a las %H:%M')}</p>
+            <h1>Informe de Hallazgos</h1>
+            <p>{cobertura} - Generado el {datetime.now().strftime('%d/%m/%Y a las %H:%M')}</p>
         </header>
 """
 
@@ -387,18 +662,22 @@ def generate_html_report(data, html_folder, cobertura):
         for entry in section['entries']:
             html_content += """
             <div class="entry">
-                <table class="data-table">"""
+                <div class="data-flex">"""
+            
+            # Lista de campos que deberían ocupar todo el ancho
+            full_width_fields = ['ObservacionesHallazgo']
             
             for key, value in entry['data'].items():
                 if value and str(value).strip():
+                    css_class = 'data-item-full' if key in full_width_fields else ''
                     html_content += f"""
-                    <tr>
-                        <th>{key}</th>
-                        <td>{value}</td>
-                    </tr>"""
+                    <div class="data-item {css_class}">
+                        <div class="data-item-label">{key}</div>
+                        <div class="data-item-value">{value}</div>
+                    </div>"""
             
             html_content += """
-                </table>"""
+                </div>"""
             
             if entry['images']:
                 html_content += """
@@ -415,10 +694,11 @@ def generate_html_report(data, html_folder, cobertura):
                     </div>"""
                 html_content += """
                 </div>"""
-            
+        
             html_content += """
             </div>"""
-        
+            html_content += """
+            <div class="entry-divider"></div>"""
         html_content += """
         </div>"""
     
@@ -433,15 +713,25 @@ def generate_html_report(data, html_folder, cobertura):
             function openModal(imgSrc) {
                 document.getElementById('modalImage').src = imgSrc;
                 document.getElementById('imageModal').style.display = 'block';
+                document.body.style.overflow = 'hidden';
             }
+            
             function closeModal() {
                 document.getElementById('imageModal').style.display = 'none';
+                document.body.style.overflow = 'auto';
             }
+            
             window.onclick = function(event) {
                 if (event.target == document.getElementById('imageModal')) {
                     closeModal();
                 }
             }
+            
+            document.addEventListener('keydown', function(event) {
+                if (event.key === 'Escape') {
+                    closeModal();
+                }
+            });
         </script>
     </div>
 </body>
